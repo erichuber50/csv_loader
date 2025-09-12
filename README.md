@@ -1,4 +1,4 @@
-# README.txt
+# README.md
 
 ## CSV Loader
 
@@ -35,6 +35,28 @@ This project provides a command-line tool for dynamically creating a PostgreSQL 
 
 ---
 
+## Getting Started
+
+### 1. Clone the Repository
+
+```
+git clone https://github.com/erichuber50/csv_loader.git
+cd csv_loader
+```
+
+### 2. Set Up PostgreSQL
+
+1. [Download and install PostgreSQL](https://www.postgresql.org/download/).
+2. Create a new database and user:
+    ```
+    -- In psql or your SQL client:
+    CREATE DATABASE your_db_name;
+    CREATE USER your_user WITH PASSWORD 'your_password';
+    GRANT ALL PRIVILEGES ON DATABASE your_db_name TO your_user;
+    ```
+
+---
+
 ## Installation
 
 Install all dependencies using the provided `requirements.txt` file:
@@ -51,12 +73,12 @@ Set the `DATABASE_URL` environment variable to your PostgreSQL connection string
 
 **Windows (PowerShell):**
 ```
-$env:DATABASE_URL="postgresql://username:password@localhost:5432/dbname"
+$env:DATABASE_URL="postgresql://your_user:your_password@localhost:5432/your_db_name"
 ```
 
 **Linux/macOS (bash):**
 ```
-export DATABASE_URL="postgresql://username:password@localhost:5432/dbname"
+export DATABASE_URL="postgresql://your_user:your_password@localhost:5432/your_db_name"
 ```
 
 ---
