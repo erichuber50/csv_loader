@@ -5,60 +5,58 @@ def overdrawn_checking_accounts():
     """Return members with overdrawn checking accounts and balances."""
     query = text("""
         SELECT 
-            m.member_guid,
-            m.first_name,
-            m.last_name,
-            c.account_guid,
-            (c.starting_balance + COALESCE(SUM(t.transaction_amount), 0)) AS balance
-        FROM checking c
-        JOIN accounts a ON c.account_guid = a.account_guid
-        JOIN members m ON a.member_guid = m.member_guid
-        LEFT JOIN transactions t ON c.account_guid = t.account_guid
-        GROUP BY m.member_guid, m.first_name, m.last_name, c.account_guid, c.starting_balance
-        HAVING (c.starting_balance + COALESCE(SUM(t.transaction_amount), 0)) < 0;
+            m."MEMBER_GUID",
+            m."FIRST_NAME",
+            m."LAST_NAME",
+            c."ACCOUNT_GUID",
+            (c."STARTING_BALANCE" + COALESCE(SUM(t."TRANSACTION_AMOUNT"), 0)) AS balance
+        FROM "CHECKING" c
+        JOIN "ACCOUNTS" a ON c."ACCOUNT_GUID" = a."ACCOUNT_GUID"
+        JOIN "MEMBERS" m ON a."MEMBER_GUID" = m."MEMBER_GUID"
+        LEFT JOIN "TRANSACTIONS" t ON c."ACCOUNT_GUID" = t."ACCOUNT_GUID"
+        GROUP BY m."MEMBER_GUID", m."FIRST_NAME", m."LAST_NAME", c."ACCOUNT_GUID", c."STARTING_BALANCE"
+        HAVING (c."STARTING_BALANCE" + COALESCE(SUM(t."TRANSACTION_AMOUNT"), 0)) < 0;
     """)
     with get_session() as session:
         return session.execute(query).fetchall()
-
 
 def overpaid_loans():
     """Return members who overpaid their loans and the overpaid amount."""
     query = text("""
         SELECT 
-            m.member_guid,
-            m.first_name,
-            m.last_name,
-            l.account_guid,
-            (COALESCE(SUM(t.transaction_amount), 0) - l.starting_debt) AS overpaid_amount
-        FROM loans l
-        JOIN accounts a ON l.account_guid = a.account_guid
-        JOIN members m ON a.member_guid = m.member_guid
-        LEFT JOIN transactions t ON l.account_guid = t.account_guid
-        GROUP BY m.member_guid, m.first_name, m.last_name, l.account_guid, l.starting_debt
-        HAVING COALESCE(SUM(t.transaction_amount), 0) > l.starting_debt;
+            m."MEMBER_GUID",
+            m."FIRST_NAME",
+            m."LAST_NAME",
+            l."ACCOUNT_GUID",
+            (COALESCE(SUM(t."TRANSACTION_AMOUNT"), 0) - l."STARTING_DEBT") AS overpaid_amount
+        FROM "LOANS" l
+        JOIN "ACCOUNTS" a ON l."ACCOUNT_GUID" = a."ACCOUNT_GUID"
+        JOIN "MEMBERS" m ON a."MEMBER_GUID" = m."MEMBER_GUID"
+        LEFT JOIN "TRANSACTIONS" t ON l."ACCOUNT_GUID" = t."ACCOUNT_GUID"
+        GROUP BY m."MEMBER_GUID", m."FIRST_NAME", m."LAST_NAME", l."ACCOUNT_GUID", l."STARTING_DEBT"
+        HAVING COALESCE(SUM(t."TRANSACTION_AMOUNT"), 0) > l."STARTING_DEBT";
     """)
     with get_session() as session:
         return session.execute(query).fetchall()
-
 
 def total_assets():
     """Return the total asset size of the institution (checking - loan debt)."""
     query = text("""
         WITH checking_balances AS (
             SELECT 
-                c.account_guid,
-                (c.starting_balance + COALESCE(SUM(t.transaction_amount), 0)) AS balance
-            FROM checking c
-            LEFT JOIN transactions t ON c.account_guid = t.account_guid
-            GROUP BY c.account_guid, c.starting_balance
+                c."ACCOUNT_GUID",
+                (c."STARTING_BALANCE" + COALESCE(SUM(t."TRANSACTION_AMOUNT"), 0)) AS balance
+            FROM "CHECKING" c
+            LEFT JOIN "TRANSACTIONS" t ON c."ACCOUNT_GUID" = t."ACCOUNT_GUID"
+            GROUP BY c."ACCOUNT_GUID", c."STARTING_BALANCE"
         ),
         loan_balances AS (
             SELECT 
-                l.account_guid,
-                (l.starting_debt - COALESCE(SUM(t.transaction_amount), 0)) AS remaining_debt
-            FROM loans l
-            LEFT JOIN transactions t ON l.account_guid = t.account_guid
-            GROUP BY l.account_guid, l.starting_debt
+                l."ACCOUNT_GUID",
+                (l."STARTING_DEBT" - COALESCE(SUM(t."TRANSACTION_AMOUNT"), 0)) AS remaining_debt
+            FROM "LOANS" l
+            LEFT JOIN "TRANSACTIONS" t ON l."ACCOUNT_GUID" = t."ACCOUNT_GUID"
+            GROUP BY l."ACCOUNT_GUID", l."STARTING_DEBT"
         )
         SELECT 
             (COALESCE((SELECT SUM(balance) FROM checking_balances), 0) -

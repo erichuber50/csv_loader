@@ -43,15 +43,33 @@ def load(schema, data_dir):
 def run_queries():
     """Run analysis queries and print results."""
     click.echo("Overdrawn Checking Accounts:")
-    for row in queries.overdrawn_checking_accounts():
-        click.echo(dict(row._mapping))
+    rows = queries.overdrawn_checking_accounts()
+    if rows:
+        for row in rows:
+            data = row._mapping
+            click.echo(
+                f"Member: {data['FIRST_NAME']} {data['LAST_NAME']} | "
+                f"Account: {data['ACCOUNT_GUID']} | "
+                f"Balance: {data['balance']}"
+            )
+    else:
+        click.echo("None found.")
 
     click.echo("\nOverpaid Loans:")
-    for row in queries.overpaid_loans():
-        click.echo(dict(row._mapping))
+    rows = queries.overpaid_loans()
+    if rows:
+        for row in rows:
+            data = row._mapping
+            click.echo(
+                f"Member: {data['FIRST_NAME']} {data['LAST_NAME']} | "
+                f"Account: {data['ACCOUNT_GUID']} | "
+                f"Overpaid Amount: {data['overpaid_amount']}"
+            )
+    else:
+        click.echo("None found.")
 
     click.echo("\nTotal Assets:")
-    click.echo(queries.total_assets())
+    click.echo(f"{queries.total_assets():,.2f}")
 
 if __name__ == "__main__":
     cli()
