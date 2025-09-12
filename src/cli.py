@@ -26,27 +26,36 @@ def cli():
     help="Directory containing CSV files to load"
 )
 def load(schema, data_dir):
-    """Create tables from schema and load CSV data into the database."""
+    """
+    Create tables from schema and load data into database.
+    
+    Args:
+        schema (str): Path to the schema CSV file.
+        data_dir (str): Directory containing CSV files to load.
+    """
     click.echo(f"Using schema: {schema}")
     click.echo(f"Loading CSVs from: {data_dir}")
 
     # Create DB engine/session
     engine = get_engine()
 
-    # Create DB schema
+    # Create DB tables from schema file
     schema_builder.create_tables(schema, engine)
 
-    # Load CSVs
+    # Load all CSV files from the data directory into the database
     loader.load_all(engine, data_dir)
 
 @cli.command()
 def run_queries():
-    """Run analysis queries and print results."""
+    """
+    Run analysis queries and print results.
+    """
     click.echo("Overdrawn Checking Accounts:")
     rows = queries.overdrawn_checking_accounts()
     if rows:
         for row in rows:
             data = row._mapping
+            # Print member and account info for overdrawn checking accounts
             click.echo(
                 f"Member: {data['FIRST_NAME']} {data['LAST_NAME']} | "
                 f"Account: {data['ACCOUNT_GUID']} | "
@@ -60,6 +69,7 @@ def run_queries():
     if rows:
         for row in rows:
             data = row._mapping
+            # Print member and account info for overpaid loans
             click.echo(
                 f"Member: {data['FIRST_NAME']} {data['LAST_NAME']} | "
                 f"Account: {data['ACCOUNT_GUID']} | "
@@ -69,7 +79,9 @@ def run_queries():
         click.echo("None found.")
 
     click.echo("\nTotal Assets:")
+    # Print the total assets of the institution
     click.echo(f"{queries.total_assets():,.2f}")
 
 if __name__ == "__main__":
+    # Entry point for running the CLI directly
     cli()

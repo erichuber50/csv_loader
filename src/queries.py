@@ -2,7 +2,13 @@ from sqlalchemy import text
 from .db import get_session
 
 def overdrawn_checking_accounts():
-    """Return members with overdrawn checking accounts and balances."""
+    """
+    Return members with overdrawn checking accounts and their balances.
+
+    Returns:
+        List of rows, each containing member and account info for overdrawn checking accounts.
+    """
+    # SQL query to find members whose checking account balance is negative
     query = text("""
         SELECT 
             m."MEMBER_GUID",
@@ -17,11 +23,18 @@ def overdrawn_checking_accounts():
         GROUP BY m."MEMBER_GUID", m."FIRST_NAME", m."LAST_NAME", c."ACCOUNT_GUID", c."STARTING_BALANCE"
         HAVING (c."STARTING_BALANCE" + COALESCE(SUM(t."TRANSACTION_AMOUNT"), 0)) < 0;
     """)
+    # Execute the query and return all results
     with get_session() as session:
         return session.execute(query).fetchall()
 
 def overpaid_loans():
-    """Return members who overpaid their loans and the overpaid amount."""
+    """
+    Return members who have overpaid their loans and the overpaid amount.
+
+    Returns:
+        List of rows, each containing member and account info for overpaid loans.
+    """
+    # SQL query to find members who have paid more than their starting loan debt
     query = text("""
         SELECT 
             m."MEMBER_GUID",
@@ -36,11 +49,18 @@ def overpaid_loans():
         GROUP BY m."MEMBER_GUID", m."FIRST_NAME", m."LAST_NAME", l."ACCOUNT_GUID", l."STARTING_DEBT"
         HAVING COALESCE(SUM(t."TRANSACTION_AMOUNT"), 0) > l."STARTING_DEBT";
     """)
+    # Execute the query and return all results
     with get_session() as session:
         return session.execute(query).fetchall()
 
 def total_assets():
-    """Return the total asset size of the institution (checking - loan debt)."""
+    """
+    Return the total asset size of the institution (checking balances minus remaining loan debt).
+
+    Returns:
+        The total assets as a single numeric value.
+    """
+    # SQL query to calculate total assets: sum of checking balances minus sum of remaining loan debts
     query = text("""
         WITH checking_balances AS (
             SELECT 
@@ -62,5 +82,6 @@ def total_assets():
             (COALESCE((SELECT SUM(balance) FROM checking_balances), 0) -
              COALESCE((SELECT SUM(remaining_debt) FROM loan_balances), 0)) AS total_assets;
     """)
+    # Execute the query and return the scalar result (total assets)
     with get_session() as session:
         return session.execute(query).scalar_one()

@@ -69,5 +69,21 @@ def create_tables(schema_file: str = DEFAULT_SCHEMA_FILE, engine=None):
     # Drop all existing tables and create new ones as defined in the schema
     metadata.drop_all(engine)
     metadata.create_all(engine)
-    print(f"Created tables from {schema_file}")
+    print(f"Created tables from {schema_file}\n")
     return engine
+
+def get_schema_columns(schema_file: str = DEFAULT_SCHEMA_FILE):
+    """
+    Read the schema CSV and return a mapping of table names to expected column names.
+
+    Args:
+        schema_file (str): Path to the schema CSV file.
+
+    Returns:
+        dict: {table_name: [column1, column2, ...], ...}
+    """
+    schema = pd.read_csv(schema_file, skipinitialspace=True, engine="python")
+    schema_dict = {}
+    for table_name, group in schema.groupby("TABLE_NAME"):
+        schema_dict[table_name] = list(group["COLUMN_NAME"])
+    return schema_dict
