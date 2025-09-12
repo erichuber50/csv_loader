@@ -72,6 +72,7 @@ csv_loader/
 │   ├── LOANS.csv
 │   ├── MEMBERS.csv
 │   ├── TRANSACTIONS.csv
+│   ├── CUSTOM_FIELDS.csv
 │   └── ... (other data files)
 ├── src/
 │   ├── cli.py
