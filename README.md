@@ -20,7 +20,7 @@ This project provides a command-line tool for dynamically creating a PostgreSQL 
 - **Schema Validation:**  
   Validates CSV columns against the schema, warns about mismatches, and skips invalid files.
 
-- **Proven Data Integrity:**  
+- **Data Integrity Verification:**  
   Verifies that all records in a given file have been successfully inserted into the database.
 
 - **Schema Drift Handling:**  
@@ -32,13 +32,15 @@ This project provides a command-line tool for dynamically creating a PostgreSQL 
 
 - Python 3.8+
 - PostgreSQL database
-- [SQLAlchemy](https://www.sqlalchemy.org/)
-- [pandas](https://pandas.pydata.org/)
-- [Click](https://click.palletsprojects.com/)
 
-Install dependencies with:
+---
+
+## Installation
+
+Install all dependencies using the provided `requirements.txt` file:
+
 ```
-pip install sqlalchemy pandas click
+pip install -r requirements.txt
 ```
 
 ---
@@ -117,7 +119,7 @@ python -m src.cli run-queries
 - **Schema mismatch:**  
   Check that your CSV files match the column names and types defined in `INFORMATION_SCHEMA.csv`.
 - **Missing dependencies:**  
-  Install required Python packages with `pip install sqlalchemy pandas click`.
+  Install required Python packages with `pip install -r requirements.txt`.
 
 ---
 
