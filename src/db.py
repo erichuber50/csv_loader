@@ -3,28 +3,33 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from .config import DEFAULT_DATA_DIR, DATABASE_URL
 
-# Create a global SQLAlchemy engine instance using the database URL.
-# The engine manages connections to the database.
-_engine = create_engine(DATABASE_URL, echo=False, future=True)
-
-# Create a configured "Session" class.
-# SessionLocal() will create new Session objects for interacting with the DB.
-SessionLocal = sessionmaker(bind=_engine, autoflush=False, autocommit=False, future=True)
+_engine = None  # Global engine instance
 
 def get_engine():
     """
-    Return the global SQLAlchemy engine.
+    Return a global SQLAlchemy engine using the DATABASE_URL from config.
 
     Returns:
         Engine: The SQLAlchemy engine instance for database connections.
+
+    Raises:
+        RuntimeError: If the DATABASE_URL is not set.
     """
+    global _engine
+    if _engine is not None:
+        return _engine
+    if not DATABASE_URL:
+        raise RuntimeError("DATABASE_URL environment variable is not set.")
+    _engine = create_engine(DATABASE_URL, echo=False, future=True)
     return _engine
 
 def get_session():
     """
-    Create and return a new SQLAlchemy session.
+    Create and return a new SQLAlchemy session using the engine from get_engine().
 
     Returns:
         Session: A new SQLAlchemy session object for database operations.
     """
+    engine = get_engine()
+    SessionLocal = sessionmaker(bind=engine, autoflush=False, autocommit=False, future=True)
     return SessionLocal()
