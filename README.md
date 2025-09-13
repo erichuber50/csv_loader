@@ -167,6 +167,46 @@ python -m src.cli run-queries
 
 ---
 
+## Running Tests
+
+This project uses `pytest` for testing. The tests require a PostgreSQL database that is safe to use for testing (tables may be created, modified, or dropped).
+
+### 1. Create a Test Database
+
+Refer to the instructions in **2. Set Up PostgreSQL** above to create a dedicated test database and user.
+
+### 2. Set the TEST_DATABASE_URL Environment Variable
+
+Set the `TEST_DATABASE_URL` environment variable to point to your test database:
+
+**Windows (PowerShell):**
+```
+$env:TEST_DATABASE_URL="postgresql://test_user:test_password@localhost:5432/test_db"
+```
+
+**Linux/macOS (bash):**
+```
+export TEST_DATABASE_URL="postgresql://test_user:test_password@localhost:5432/test_db"
+```
+
+### 3. Run the Tests
+
+From your project root, run:
+
+```
+pytest
+```
+
+Pytest will discover and run all tests in the `tests/` directory.
+
+---
+
+**Note:**  
+- The test database should be dedicated for testing purposes, as tests may drop or modify tables.
+- Ensure all dependencies are installed with `pip install -r requirements.txt` before running tests.
+
+---
+
 ## Author
 
 Eric Huber
