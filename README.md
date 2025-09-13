@@ -126,8 +126,15 @@ csv_loader/
 │   ├── loader.py
 │   ├── queries.py
 │   └── schema_builder.py
-├── README.md
+├── tests/
+│   ├── conftest.py
+│   ├── test_cli.py
+│   ├── test_loader.py
+│   └── test_queries.py
 ├── requirements.txt
+├── pytest.ini
+├── README.md
+├── .gitignore
 └── (other project files)
 ```
 
