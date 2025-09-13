@@ -117,8 +117,7 @@ csv_loader/
 │   ├── LOANS.csv
 │   ├── MEMBERS.csv
 │   ├── TRANSACTIONS.csv
-│   ├── CUSTOM_FIELDS.csv
-│   └── ... (other data files)
+│   └── CUSTOM_FIELDS.csv
 ├── src/
 │   ├── cli.py
 │   ├── config.py
@@ -134,8 +133,7 @@ csv_loader/
 ├── requirements.txt
 ├── pytest.ini
 ├── README.md
-├── .gitignore
-└── (other project files)
+└── .gitignore
 ```
 
 ---
