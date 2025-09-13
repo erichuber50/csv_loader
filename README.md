@@ -2,6 +2,8 @@
 
 ## CSV Loader
 
+[![codecov](https://codecov.io/gh/erichuber50/csv_loader/branch/main/graph/badge.svg)](https://codecov.io/gh/erichuber50/csv_loader)
+
 This project provides a command-line tool for dynamically creating a PostgreSQL database schema from a CSV schema definition (`INFORMATION_SCHEMA.csv`), loading data from CSV files, and running analysis queries.
 
 ---
