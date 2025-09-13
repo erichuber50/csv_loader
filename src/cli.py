@@ -1,3 +1,4 @@
+import sys
 import os
 import click
 from . import schema_builder, loader, queries
@@ -28,60 +29,67 @@ def cli():
 def load(schema, data_dir):
     """
     Create tables from schema and load data into database.
-    
-    Args:
-        schema (str): Path to the schema CSV file.
-        data_dir (str): Directory containing CSV files to load.
     """
     click.echo(f"Using schema: {schema}")
     click.echo(f"Loading CSVs from: {data_dir}")
 
-    # Create DB engine/session
-    engine = get_engine()
+    try:
+        engine = get_engine()
+    except Exception as e:
+        click.secho(f"Error connecting to the database: {e}", fg="red", err=True)
+        sys.exit(1)
 
-    # Create DB tables from schema file
-    schema_builder.create_tables(schema, engine)
+    try:
+        schema_builder.create_tables(schema, engine)
+    except Exception as e:
+        click.secho(f"Error creating tables from schema: {e}", fg="red", err=True)
+        sys.exit(1)
 
-    # Load all CSV files from the data directory into the database
-    loader.load_all(engine, data_dir)
+    try:
+        loader.load_all(engine, data_dir)
+    except Exception as e:
+        click.secho(f"Error loading CSV files: {e}", fg="red", err=True)
+        sys.exit(1)
+
+    click.secho("Data loading completed successfully.", fg="green")
 
 @cli.command()
 def run_queries():
     """
     Run analysis queries and print results.
     """
-    click.echo("Overdrawn Checking Accounts:")
-    rows = queries.overdrawn_checking_accounts()
-    if rows:
-        for row in rows:
-            data = row._mapping
-            # Print member and account info for overdrawn checking accounts
-            click.echo(
-                f"Member: {data['FIRST_NAME']} {data['LAST_NAME']} | "
-                f"Account: {data['ACCOUNT_GUID']} | "
-                f"Balance: {data['balance']}"
-            )
-    else:
-        click.echo("None found.")
+    try:
+        click.echo("Overdrawn Checking Accounts:")
+        rows = queries.overdrawn_checking_accounts()
+        if rows:
+            for row in rows:
+                data = row._mapping
+                click.echo(
+                    f"Member: {data['FIRST_NAME']} {data['LAST_NAME']} | "
+                    f"Account: {data['ACCOUNT_GUID']} | "
+                    f"Balance: {data['balance']}"
+                )
+        else:
+            click.echo("None found.")
 
-    click.echo("\nOverpaid Loans:")
-    rows = queries.overpaid_loans()
-    if rows:
-        for row in rows:
-            data = row._mapping
-            # Print member and account info for overpaid loans
-            click.echo(
-                f"Member: {data['FIRST_NAME']} {data['LAST_NAME']} | "
-                f"Account: {data['ACCOUNT_GUID']} | "
-                f"Overpaid Amount: {data['overpaid_amount']}"
-            )
-    else:
-        click.echo("None found.")
+        click.echo("\nOverpaid Loans:")
+        rows = queries.overpaid_loans()
+        if rows:
+            for row in rows:
+                data = row._mapping
+                click.echo(
+                    f"Member: {data['FIRST_NAME']} {data['LAST_NAME']} | "
+                    f"Account: {data['ACCOUNT_GUID']} | "
+                    f"Overpaid Amount: {data['overpaid_amount']}"
+                )
+        else:
+            click.echo("None found.")
 
-    click.echo("\nTotal Assets:")
-    # Print the total assets of the institution
-    click.echo(f"{queries.total_assets():,.2f}")
+        click.echo("\nTotal Assets:")
+        click.echo(f"{queries.total_assets():,.2f}")
+    except Exception as e:
+        click.secho(f"Error running queries: {e}", fg="red", err=True)
+        sys.exit(1)
 
 if __name__ == "__main__":
-    # Entry point for running the CLI directly
     cli()
