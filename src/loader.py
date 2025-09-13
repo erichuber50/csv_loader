@@ -35,7 +35,7 @@ def validate_csv_columns(table_name, df, schema):
 
 def load_csv(engine, table_name, file_path, schema=None):
     """
-    Load a single CSV file into a specified database table, with optional schema validation.
+    Load a single CSV file into a specified database table, with schema validation.
 
     Args:
         engine: SQLAlchemy engine instance connected to the target database.
