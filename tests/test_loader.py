@@ -4,12 +4,19 @@ from sqlalchemy import inspect, text
 from src import schema_builder, loader
 
 def test_schema_builder_creates_table(engine, temp_data_dir):
+    """
+    Test that schema_builder creates tables from the schema definition.
+    Verifies that the TEST_TABLE is present in the database after creation.
+    """
     schema_file = os.path.join(temp_data_dir, "INFORMATION_SCHEMA.csv")
     schema_builder.create_tables(schema_file, engine)
     insp = inspect(engine)
     assert "TEST_TABLE" in insp.get_table_names()
 
 def test_loader_loads_data(engine, temp_data_dir):
+    """
+    Test that loader loads CSV data into the database.
+    """
     schema_file = os.path.join(temp_data_dir, "INFORMATION_SCHEMA.csv")
     schema_builder.create_tables(schema_file, engine)
     loader.load_all(engine, temp_data_dir, schema_file)
@@ -19,6 +26,9 @@ def test_loader_loads_data(engine, temp_data_dir):
     assert count == 3
 
 def test_loader_handles_extra_and_missing_columns(engine, temp_data_dir):
+    """
+    Test that loader handles extra columns (ignores them) and missing columns (fails validation).
+    """
     schema_file = os.path.join(temp_data_dir, "INFORMATION_SCHEMA.csv")
     schema_builder.create_tables(schema_file, engine)
     schema = schema_builder.get_schema_columns(schema_file)
@@ -37,6 +47,9 @@ def test_loader_handles_extra_and_missing_columns(engine, temp_data_dir):
     assert not is_valid
 
 def test_loader_skips_invalid_files(engine, temp_data_dir):
+    """
+    Test that loader skips files with schema mismatch.
+    """
     bad_csv = os.path.join(temp_data_dir, "BAD.csv")
     pd.DataFrame({"WRONG": [1]}).to_csv(bad_csv, index=False)
     schema_file = os.path.join(temp_data_dir, "INFORMATION_SCHEMA.csv")
@@ -44,6 +57,12 @@ def test_loader_skips_invalid_files(engine, temp_data_dir):
     loader.load_all(engine, temp_data_dir, schema_file)
 
 def test_schema_drift_add_remove_transpose_columns(engine, temp_data_dir):
+    """
+    Test handling of schema drift: adding, removing, and transposing columns in the schema and CSV.
+    - Adds a new column and verifies data is loaded.
+    - Removes the column and verifies only the original column remains.
+    - Transposes columns in the CSV and verifies data loads correctly.
+    """
     schema_file = os.path.join(temp_data_dir, "INFORMATION_SCHEMA.csv")
     data_file = os.path.join(temp_data_dir, "TEST_TABLE.csv")
 
@@ -172,6 +191,7 @@ def test_loader_loads_multiple_tables(engine, temp_data_dir):
 def test_loader_handles_empty_csv(engine, temp_data_dir):
     """
     Test that loading an empty CSV file (header only, no data) does not insert any rows and does not fail.
+    Adds an empty table to the schema, loads an empty CSV, and checks that no rows are inserted.
     """
     schema_file = os.path.join(temp_data_dir, "INFORMATION_SCHEMA.csv")
     empty_csv = os.path.join(temp_data_dir, "EMPTY_TABLE.csv")

@@ -36,7 +36,7 @@ def test_query_results_on_sample_data(engine, temp_data_dir):
         {"ACCOUNT_GUID": "a2", "STARTING_DEBT": 50},
     ]).to_csv(os.path.join(temp_data_dir, "LOANS.csv"), index=False)
     pd.DataFrame([
-        {"ACCOUNT_GUID": "a1", "TRANSACTION_AMOUNT": 0},
+        {"ACCOUNT_GUID": "a1", "TRANSACTION_AMOUNT": 25},
         {"ACCOUNT_GUID": "a2", "TRANSACTION_AMOUNT": 100},
     ]).to_csv(os.path.join(temp_data_dir, "TRANSACTIONS.csv"), index=False)
 
@@ -44,10 +44,12 @@ def test_query_results_on_sample_data(engine, temp_data_dir):
     loader.load_all(engine, temp_data_dir, schema_file)
 
     rows = queries.overdrawn_checking_accounts()
-    assert any(row._mapping["FIRST_NAME"] == "Alice" and row._mapping["balance"] == -100 for row in rows)
+    assert any(row._mapping["FIRST_NAME"] == "Alice" and row._mapping["balance"] == -75 for row in rows)
 
     rows = queries.overpaid_loans()
     assert any(row._mapping["FIRST_NAME"] == "Alice" and row._mapping["overpaid_amount"] == 50 for row in rows)
 
     total = queries.total_assets()
-    assert total == -50
+    # total assets = checking balance sum - remaining loan debt sum
+    # checking: -100 + 25 = -75, loan: 50 - 100 = -50, so total = -75 - (-50) = -25
+    assert total == -25
