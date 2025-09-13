@@ -57,32 +57,25 @@ cd csv_loader
    - You may need to enter your password.
 
 3. Create a new database and user (run in the psql prompt connected as postgres):
-```
--- Create database and user
-CREATE DATABASE your_db_name;
-CREATE USER your_user WITH PASSWORD 'your_password';
+   ```
+   -- Create database and user
+   CREATE DATABASE your_db_name;
+   CREATE USER your_user WITH PASSWORD 'your_password';
 
--- Grant database privileges
-GRANT ALL PRIVILEGES ON DATABASE your_db_name TO your_user;
+   -- Grant database privileges
+   GRANT ALL PRIVILEGES ON DATABASE your_db_name TO your_user;
 
--- Connect to the new database (either \c your_db_name or exit and reconnect):
-\c your_db_name
+   -- Connect to the new database
+   \c your_db_name
 
--- (Option A - simplest) Make the user the owner of the database schema
-ALTER DATABASE your_db_name OWNER TO your_user;
-ALTER SCHEMA public OWNER TO your_user;
-
--- (Option B - if you don't change ownership, explicitly grant schema privileges)
-GRANT USAGE, CREATE ON SCHEMA public TO your_user;
-
--- Ensure future tables/sequences default privileges (optional)
-ALTER DEFAULT PRIVILEGES IN SCHEMA public
-    GRANT SELECT, INSERT, UPDATE, DELETE ON TABLES TO your_user;
-```
+   -- Make the user the owner of the database schema
+   ALTER DATABASE your_db_name OWNER TO your_user;
+   ALTER SCHEMA public OWNER TO your_user;
+   ```
 4. Exit with:
-```
-\q
-```
+   ```
+   \q
+   ```
 
 5. **Set the `DATABASE_URL` environment variable** to use the new database and user credentials:
 
