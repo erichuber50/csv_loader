@@ -5,6 +5,7 @@ from . import schema_builder, loader, queries
 from .config import DEFAULT_DATA_DIR, DEFAULT_SCHEMA_FILE
 from .db import get_engine, get_session
 from sqlalchemy import text
+from sqlalchemy.exc import ProgrammingError
 
 @click.group()
 def cli():
@@ -87,6 +88,15 @@ def run_queries():
 
         click.echo("\nTotal Assets:")
         click.echo(f"{queries.total_assets():,.2f}")
+    except ProgrammingError as e:
+        if "does not exist" in str(e):
+            click.secho(
+                "Database tables do not exist. Please run the 'load' command first.",
+                fg="red", err=True
+            )
+        else:
+            click.secho(f"Error running queries: {e}", fg="red", err=True)
+        sys.exit(1)
     except Exception as e:
         click.secho(f"Error running queries: {e}", fg="red", err=True)
         sys.exit(1)
